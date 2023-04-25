@@ -32,3 +32,9 @@ services:
       - "6379:6379"
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"

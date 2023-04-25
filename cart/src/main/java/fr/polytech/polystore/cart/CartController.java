@@ -26,4 +26,9 @@ public class CartController {
         return cartService.setCartItem(cartItem);
     }
 
+    @PostMapping("/checkout")
+    public void checkout() {
+        cartService.checkout();
+    }
+
 }

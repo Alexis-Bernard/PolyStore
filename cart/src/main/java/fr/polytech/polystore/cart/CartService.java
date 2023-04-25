@@ -1,5 +1,6 @@
 package fr.polytech.polystore.cart;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,9 @@ public class CartService {
 
     @Autowired
     private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     public List<CartItem> getCartItems() {
         List<CartItem> cartItems = new ArrayList<>();
@@ -25,6 +29,16 @@ public class CartService {
             return null;
         } else {
             return cartItemRepository.save(cartItem);
+        }
+    }
+
+    public void checkout() {
+        List<CartItem> cartItems = getCartItems();
+
+        rabbitTemplate.convertAndSend("polycode-exchange", "a-checkout", "test");
+
+        for (CartItem cartItem : cartItems) {
+            // cartItemRepository.delete(cartItem);
         }
     }
 

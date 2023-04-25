@@ -1,15 +1,12 @@
-package fr.polytech.polystore.cart;
+package fr.polytech.polystore.order;
 
 import java.io.Serializable;
-
-import org.springframework.data.redis.core.RedisHash;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@RedisHash("CartItem")
 public class CartItem implements Serializable {
     private String id;
     private Integer quantity;
