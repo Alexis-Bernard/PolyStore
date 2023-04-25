@@ -61,8 +61,7 @@ class InventoryController {
 
         latch.countDown();
 
-        // rabbitTemplate.convertAndSend("polycode-exchange", "a-checkout",
-        // CartItem.toJson(cartItems));
+        rabbitTemplate.convertAndSend("polycode-exchange", "b-checkout", CartItem.toJson(cartItems));
     }
 
     public CountDownLatch getLatch() {

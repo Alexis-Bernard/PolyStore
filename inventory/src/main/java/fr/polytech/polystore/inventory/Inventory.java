@@ -16,7 +16,10 @@ public class Inventory {
     @Column(name = "product_id", unique = true, nullable = false)
     private String productId;
 
-    @Column(name = "quantity", nullable = false)
+    @Column(nullable = false)
     private Integer quantity;
+
+    @Column(nullable = false)
+    private Double price;
 
 }

@@ -10,12 +10,7 @@ public class InventoryProduct {
     private Long id;
     private String productId;
     private Integer quantity;
-
-    public InventoryProduct(Long id, String productId, Integer quantity) {
-        this.id = id;
-        this.productId = productId;
-        this.quantity = quantity;
-    }
+    private Double price;
 
     public String getProductId() {
         return productId;
@@ -23,6 +18,10 @@ public class InventoryProduct {
 
     public Integer getQuantity() {
         return quantity;
+    }
+
+    public Double getPrice() {
+        return price;
     }
 
 }

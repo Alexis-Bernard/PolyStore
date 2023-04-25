@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class CartItem implements Serializable {
     private String id;
     private Integer quantity;
+    private Double price;
 
     public String getId() {
         return id;
@@ -22,6 +23,10 @@ public class CartItem implements Serializable {
 
     public Integer getQuantity() {
         return quantity;
+    }
+
+    public Double getPrice() {
+        return price;
     }
 
     static String toJson(List<CartItem> cartItems) throws JsonProcessingException {
