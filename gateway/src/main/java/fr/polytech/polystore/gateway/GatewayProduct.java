@@ -19,9 +19,4 @@ public class GatewayProduct {
         this.quantity = quantity;
     }
 
-    @Override
-    public String toString() {
-        return "GatewayProduct {id=" + id + ", name=" + name + ", price=" + price + ", quantity=" + quantity + "}";
-    }
-
 }

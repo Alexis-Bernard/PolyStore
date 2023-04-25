@@ -1,9 +1,8 @@
-package fr.polytech.polystore.cart;
+package fr.polytech.polystore.inventory;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
-
-import org.springframework.data.redis.core.RedisHash;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +12,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@RedisHash("CartItem")
 public class CartItem implements Serializable {
     private String id;
     private Integer quantity;
@@ -28,5 +26,9 @@ public class CartItem implements Serializable {
 
     static String toJson(List<CartItem> cartItems) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(cartItems);
+    }
+
+    static public List<CartItem> fromJson(String json) throws JsonProcessingException {
+        return Arrays.asList(new ObjectMapper().readValue(json, CartItem[].class));
     }
 }

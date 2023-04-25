@@ -29,13 +29,4 @@ public class CatalogProduct {
         return price;
     }
 
-    @Override
-    public String toString() {
-        return "CatalogProduct{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                '}';
-    }
-
 }

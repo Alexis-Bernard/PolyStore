@@ -4,6 +4,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +34,13 @@ public class CartService {
         }
     }
 
-    public void checkout() {
+    public void checkout() throws JsonProcessingException {
         List<CartItem> cartItems = getCartItems();
 
-        rabbitTemplate.convertAndSend("polycode-exchange", "a-checkout", "test");
+        rabbitTemplate.convertAndSend("polycode-exchange", "a-checkout", CartItem.toJson(cartItems));
 
         for (CartItem cartItem : cartItems) {
+            // TODO : Uncomment this line
             // cartItemRepository.delete(cartItem);
         }
     }

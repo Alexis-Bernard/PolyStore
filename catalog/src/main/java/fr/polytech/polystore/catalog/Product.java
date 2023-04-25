@@ -65,9 +65,4 @@ class Product {
     public int hashCode() {
         return Objects.hash(this.id, this.name, this.price);
     }
-
-    @Override
-    public String toString() {
-        return "Product{" + "id=" + this.id + ", name='" + this.name + '\'' + ", price=" + this.price + '}';
-    }
 }

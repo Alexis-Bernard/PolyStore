@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import java.util.List;
 
 @RestController
@@ -27,7 +29,7 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public void checkout() {
+    public void checkout() throws JsonProcessingException {
         cartService.checkout();
     }
 

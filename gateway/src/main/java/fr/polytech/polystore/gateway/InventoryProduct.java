@@ -25,9 +25,4 @@ public class InventoryProduct {
         return quantity;
     }
 
-    @Override
-    public String toString() {
-        return "InventoryProduct {id=" + id + ", productId=" + productId + ", quantity=" + quantity + "}";
-    }
-
 }
