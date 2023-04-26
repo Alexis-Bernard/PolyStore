@@ -4,6 +4,7 @@ import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -47,6 +48,12 @@ public class GatewayController {
                                 -1., -1)));
 
         return gatewayProducts;
+    }
+
+    @PostMapping("/products")
+    public Mono<CatalogProduct> createProduct(@RequestBody CatalogProduct product) {
+        return webClient.post().uri("//catalog-service/products").body(Mono.just(product), CatalogProduct.class)
+                .retrieve().bodyToMono(CatalogProduct.class);
     }
 
 }
