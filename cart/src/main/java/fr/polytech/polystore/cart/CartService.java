@@ -37,7 +37,7 @@ public class CartService {
     public void checkout() throws JsonProcessingException {
         List<CartItem> cartItems = getCartItems();
 
-        rabbitTemplate.convertAndSend("polycode-exchange", "a-checkout", CartItem.toJson(cartItems));
+        rabbitTemplate.convertAndSend("polystore-exchange", "a-checkout", CartItem.toJson(cartItems));
 
         for (CartItem cartItem : cartItems) {
             // TODO : Uncomment this line
