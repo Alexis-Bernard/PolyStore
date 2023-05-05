@@ -22,4 +22,14 @@ public class Inventory {
     @Column(nullable = false)
     private Double price;
 
+    @Override
+    public String toString() {
+        return "Inventory{" +
+                "id=" + id +
+                ", productId='" + productId + '\'' +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                '}';
+    }
+
 }

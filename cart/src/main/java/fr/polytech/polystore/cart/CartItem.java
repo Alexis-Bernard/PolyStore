@@ -1,6 +1,7 @@
 package fr.polytech.polystore.cart;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.data.redis.core.RedisHash;
@@ -34,4 +35,18 @@ public class CartItem implements Serializable {
     static String toJson(List<CartItem> cartItems) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(cartItems);
     }
+
+    static public List<CartItem> fromJson(String json) throws JsonProcessingException {
+        return Arrays.asList(new ObjectMapper().readValue(json, CartItem[].class));
+    }
+
+    @Override
+    public String toString() {
+        return "CartItem{" +
+                "id='" + id + '\'' +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                '}';
+    }
+
 }

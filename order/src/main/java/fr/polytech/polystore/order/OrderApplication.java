@@ -30,7 +30,7 @@ public class OrderApplication {
 
     @Bean
     Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with("b-checkout");
+        return BindingBuilder.bind(queue).to(exchange).with(queueName);
     }
 
     public static void main(String[] args) {

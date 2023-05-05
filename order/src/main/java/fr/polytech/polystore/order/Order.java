@@ -19,9 +19,14 @@ public class Order {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Long id;
 
-    private float price;
+    private Double price;
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Item> items;
+
+    public Order(Double price, List<Item> items) {
+        this.price = price;
+        this.items = items;
+    }
 
 }

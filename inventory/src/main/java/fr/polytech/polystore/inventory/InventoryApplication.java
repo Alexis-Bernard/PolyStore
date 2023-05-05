@@ -17,10 +17,16 @@ public class InventoryApplication {
 
     static final String topicExchangeName = "polystore-exchange";
     static final String queueName = "a-checkout";
+    static final String errorQueueName = "b-checkout-rollback";
 
     @Bean
     Queue queue() {
         return new Queue(queueName, false);
+    }
+
+    @Bean
+    Queue errorQueue() {
+        return new Queue(errorQueueName, false);
     }
 
     @Bean
@@ -29,8 +35,13 @@ public class InventoryApplication {
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with("a-checkout");
+    Binding binding(Queue queue, Queue errorQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(queueName);
+    }
+
+    @Bean
+    Binding errorBinding(Queue errorQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(errorQueue).to(exchange).with(errorQueueName);
     }
 
     public static void main(String[] args) {

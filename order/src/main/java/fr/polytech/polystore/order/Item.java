@@ -18,4 +18,9 @@ public class Item {
 
     private int quantity;
 
+    public Item(String productId, int quantity) {
+        this.productId = productId;
+        this.quantity = quantity;
+    }
+
 }
