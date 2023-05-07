@@ -19,6 +19,6 @@ jobs:
         uses: manoelcampos/asciidoctor-ghpages-action@v2
         with:
           pdf_build: true
-          source_dir: TAD/
+          source_dir: docs/
           # asciidoctor_params: --attribute=nofooter
           # slides_build: true
