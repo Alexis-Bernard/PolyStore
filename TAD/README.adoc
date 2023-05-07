@@ -1,0 +1,106 @@
+// SAGA si on découpe davantage le service de payment
+// Queue pour mailer
+
+= PolyCode Technical Architecture Document - V2 
+Alexis Bernard <alexisbernard34310@gmail.com> 
+:description: This document describes the technical architecture of PolyCode to the microservices migration. 
+:hide-uri-scheme:
+:doctype: book
+:title-logo-image: image:images/logo.png[PolyCode, top=3%,align=center]
+:sectanchors:
+:toc: left
+:toclevels: 2
+:toc-title: Table of Contents
+
+<<<
+:sectnums:
+
+== Introduction
+
+Polycode is a web application. His goal is to provide a simple and intuitive way to learn programming, get certifications, participate in coding campaings, and to make coding interviews.
+
+The application is available at https://polycode.do-2021.fr or http://staging.polycode.do-2021.fr for more functionnalities.
+
+Polycode is actually based on a monolithic architecture. The goal of this document is to explain why and how bring polycode to a microservice architecture, using the cloud patterns learned recently.
+
+== First PolyCode acrhitecture proposal
+
+For the first work about the microservice transition, I have done the following proposal.
+
+.PolyCode microservice architecture schema
+image::images/PolyCode microservice architecture schema.png[align=center]
+
+The five microservices are:
+
+- `Mailer`
+- `Authentication` (Keycloak)
+- `Account`
+- `Learning`
+- `Runner`
+
+Each inter process communication (IPC) should be done using http calls, and synchronously.
+
+In the next part, we will see how we will manage better the communication and the discovery between those microservices.
+
+== New PolyCode architecture proposal
+
+Some parts of the architecture does not have any change in this proposal. Let's explain only the changes, and begin with the mailer microservice.
+
+=== Mailer service communication
+
+The mailer service is responsible to send emails to users or candidates. It is a service that dosen't have any dependencies, and is only used by others services. For example, when a user is invited in a team, the `Account` service will call the `Mailer` service to send the email.
+
+This use case does not need a immediate response from the `mailer`. If an email is not received, there is still a way to send it again. Especially since we would have no guarantee than the mail was well received and read.
+
+Therefore, we will use asynchronous communication for this service. Since we only have this service that uses it, we will not use pub/sub pattern, but a simple queueing system, using RabbitMQ.
+
+In our previous example, the `Account` service will send a message to the rabbitMQ server, and the `Mailer` service will consume this message, and send the email.
+
+The benefits of this pattern are:
+
+* The `Account` service does not have to wait for the `Mailer` service to send the email.
+* The `Mailer` service can consume the messages in the queue at its own pace.
+* We can scale the `Mailer` service easily by adding multiple consumers, depending on the needed load.
+
+The drawbacks of this pattern are:
+
+* If the scale is not well managed, the queue can grow indefinitely and cause some problems, and the mails will not be sent in a suitable time.
+
+As said before, the chosen queueing system is `RabbitMQ`. There is no particular reason for this choice, except that it is the most widely deployed open source message broker, and it's the only one that I have tested.
+
+Here is the schema of the `Mailer` microservice communication with RabbitMQ message broker:
+
+.Mailer microservice communication
+image::images/Mailer microservice communication.png[align=center]
+
+Now, let's speak about another microservice : the `Shop` service.
+
+=== Shop service communication
+
+// TODO : HERE
+This service is responsible to maintain the stock of the avaliable items.
+
+==== Sequence diagram of a purchase request
+
+Here is a sequence diagram of a basic request, from the `Account` service to the `Authentication` service, to verify the token validity:
+
+.Sequence diagram of a item purchase request
+image::images/Sequence diagram of a item purchase request.png[align=center]
+
+// TODO : do the diagram
+// SAGA ENTRE MAILER ET ACCOUNT
+
+For the other microservices, we will use synchronous communication. The reason is that we need a response from the service. For example, when a user query his profile data to the `Account` service, a call to the `Authentication` service is made to check token validity. In this case, we need a response before sending the data to the user.
+
+For all our microservices, we will use a REST API. The reason is that it is a well-known pattern, and it is easy to use. We don't need to use a more complex protocol such as gRPC, because we don't need to optimize the communication between our microservices for now.
+
+=== Service discovery
+
+For the service discovery, we will use the third-party registration pattern. We will use the `Consul` service registry. The reason is that it is a well-known service registry. We will use the self-managed version of Consul (open source) with kubernetes, because the PolyCode application is not deployed in a cloud environment, but on private servers, at Polytech.
+
+Here is the schema of the PolyCode service discovery with Consul:
+
+.PolyCode service discovery with Consul
+image::images/PolyCode service discovery with Consul.png[align=center]
+
+In this schema, we can see that each microservice is deployed in a kubernetes pod. Each pod has the microservice and a sidecar container, that is responsible to register, deregister and query the service. The sidecar container is made up of two parts: the dataplane and an envoy proxy. The envoy proxy is responsible to communicate with the service, and make load-balacing, and the dataplane with the consul control plane. The consul control plane is responsible to keep the global state of the cluster.
