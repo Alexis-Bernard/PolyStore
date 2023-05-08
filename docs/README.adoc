@@ -25,6 +25,8 @@ Polycode is actually based on a monolithic architecture. The goal of this docume
 
 == First PolyCode acrhitecture proposal
 
+The previous version of this document is available here : https://alexis-bernard.github.io/polycode-microservice-TAD/
+
 For the first work about the microservice transition, I have done the following proposal.
 
 .PolyCode microservice architecture schema
@@ -44,9 +46,21 @@ In the next part, we will see how we will manage better the communication and th
 
 == New PolyCode architecture proposal
 
-Some parts of the architecture does not have any change in this proposal. Let's explain only the changes, and begin with the mailer microservice.
+First, we will see the changes in the architecture, and then we will see how we will manage the communication and the discovery between the microservices.
 
-=== Mailer service communication
+=== Architecture changes
+
+First, I choose to split the application in more microservices. Initially, I wanted to have only one microservice for the `Account` service, because my plan is to migrate to microservice slowly. But, if I want implement some new patterns learned recently, i need to split this service to exctract the `Shop` service.
+
+In addition, I have added a new service : An API Gateway. The goal of this service is to be the entry point of the application. It will be responsible to route the requests to the right microservice, manage the authentication, rate limiting, and aggregate the responses.
+
+That's all for the architecture changes. Now, let's see how we will manage the communication and the discovery between the microservices.
+
+=== Communication and discovery
+
+In the previous version of our technical architecture document, we have seen some patterns that we can use to communicate between our microservices, but have an prohitibion to use asynchronous communication. Here, we are free in our choices, then let's speak about the asynchronous communication, beginning with the `Mailer` service.
+
+==== Mailer service communication
 
 The mailer service is responsible to send emails to users or candidates. It is a service that dosen't have any dependencies, and is only used by others services. For example, when a user is invited in a team, the `Account` service will call the `Mailer` service to send the email.
 
@@ -75,28 +89,38 @@ image::images/Mailer microservice communication.png[align=center]
 
 Now, let's speak about another microservice : the `Shop` service.
 
-=== Shop service communication
+==== Shop service communication
 
-// TODO : HERE
-This service is responsible to maintain the stock of the avaliable items.
+This service is responsible to manage the items and their quantities. It is used whan an user want to purchase any item (like a hint).
 
-==== Sequence diagram of a purchase request
+When a user wants to purchase an item, there is two microservices that will be involved : the `Account` service and the `Shop` service.
 
-Here is a sequence diagram of a basic request, from the `Account` service to the `Authentication` service, to verify the token validity:
+There is two sensitive points in this use case :
+
+* The `Account` service must be sure that the user has enough money to purchase the item.
+
+* The `Shop` service must be sure that the item is still available.
+
+For those two points, and because we want to use asynchronous communication, we will use the `SAGA` pattern between the `Account` service and the `Shop` service, using RabbitMQ.
+
+===== Sequence diagram of a purchase request
+
+Here is a sequence diagram of a basic request to purchase an item.
 
 .Sequence diagram of a item purchase request
-image::images/Sequence diagram of a item purchase request.png[align=center]
+image::https://mermaid.ink/img/pako:eNp9Uk1rwzAM_SvC17Ywxk45FMpWth0GG20vW3YQtrKYJLbrD0Yo_e-Tm7SFBuaDsSW9p6ePg5BWkShEoH0iI-lJ44_HrjTAx6GPWmqHJsIukJ9anzHSL_ZTx0pKm0ycOja1dYN1uDPvYrmcjUwFfL1st-_f8BqpA5e8rDEQ-CwvjHRjaEaNaRj1sVvv1v_CxliGXVCPNckGEksAZ9veWW1iAOyu0s-5GLXIUgvI8uD-7uGWdJYruxGyT1yyjj0okp4mirCNsPbeerBSJk8KWt0QaBNSVXHDiPt1phgQ-eQ8Jz2XMlahgYpZ8FoFJ6qSUQOKjBJz0ZHvUCse9iGbSxFr6qgUBT8V-qYUpTlyHKZoN72Roog-0Vwkp7gJ42KIosI2sJWH-Wnt9U9KR-vfhm06LdXxDzfszOM?type=png[align=center]
 
-// TODO : do the diagram
-// SAGA ENTRE MAILER ET ACCOUNT
+// https://mermaid.live/edit#pako:eNp9Uk1rwzAM_SvC17Ywxk45FMpWth0GG20vW3YQtrKYJLbrD0Yo_e-Tm7SFBuaDsSW9p6ePg5BWkShEoH0iI-lJ44_HrjTAx6GPWmqHJsIukJ9anzHSL_ZTx0pKm0ycOja1dYN1uDPvYrmcjUwFfL1st-_f8BqpA5e8rDEQ-CwvjHRjaEaNaRj1sVvv1v_CxliGXVCPNckGEksAZ9veWW1iAOyu0s-5GLXIUgvI8uD-7uGWdJYruxGyT1yyjj0okp4mirCNsPbeerBSJk8KWt0QaBNSVXHDiPt1phgQ-eQ8Jz2XMlahgYpZ8FoFJ6qSUQOKjBJz0ZHvUCse9iGbSxFr6qgUBT8V-qYUpTlyHKZoN72Roog-0Vwkp7gJ42KIosI2sJWH-Wnt9U9KR-vfhm06LdXxDzfszOM
 
-For the other microservices, we will use synchronous communication. The reason is that we need a response from the service. For example, when a user query his profile data to the `Account` service, a call to the `Authentication` service is made to check token validity. In this case, we need a response before sending the data to the user.
+==== Other microservices communication
 
-For all our microservices, we will use a REST API. The reason is that it is a well-known pattern, and it is easy to use. We don't need to use a more complex protocol such as gRPC, because we don't need to optimize the communication between our microservices for now.
+For the other microservices, we will use synchronous communication, as said in the previous version of the TAD.
 
-=== Service discovery
+Then, we will use a REST API. The reason is that it is a well-known pattern, and it is easy to use.
 
-For the service discovery, we will use the third-party registration pattern. We will use the `Consul` service registry. The reason is that it is a well-known service registry. We will use the self-managed version of Consul (open source) with kubernetes, because the PolyCode application is not deployed in a cloud environment, but on private servers, at Polytech.
+==== Service discovery
+
+For the service discovery, don't change anything from the previous TAD proposal. We will use the third-party registration pattern. We will use the `Consul` service registry. The reason is that it is a well-known service registry. We will use the self-managed version of Consul (open source) with kubernetes, because the PolyCode application is not deployed in a cloud environment, but on private servers, at Polytech.
 
 Here is the schema of the PolyCode service discovery with Consul:
 
