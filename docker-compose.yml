@@ -16,6 +16,7 @@ services:
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=postgres
       - POSTGRESQL_DATABASE=postgres
+
   mongo:
     image: bitnami/mongodb:4.4.14-debian-10-r33
     restart: always
@@ -25,6 +26,7 @@ services:
       - mongo:/bitnami/mongodb
     environment:
       - MONGODB_ROOT_PASSWORD=root
+
   redis:
     image: bitnami/redis:7.0.9-debian-11-r5
     restart: always
@@ -38,3 +40,17 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  polystore-inventory:
+    image: ascoz/polystore-inventory:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      - PORT=8080
+      - EUREKA_ENABLED=false
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/postgres
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
