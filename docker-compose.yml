@@ -79,6 +79,17 @@ services:
       - MONGODB_USERNAME=root
       - MONGODB_PASSWORD=root
 
+  polystore-cart:
+    image: ascoz/polystore-cart:latest
+    depends_on:
+      - mongo
+      - rabbitmq
+    environment:
+      - PORT=8080
+      - EUREKA_ENABLED=false
+      - REDIS_HOST=mongo
+      - REDIS_PORT=6379
+
   polystore-gateway:
     image: ascoz/polystore-gateway:latest
     ports:

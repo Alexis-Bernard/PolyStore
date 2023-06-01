@@ -47,6 +47,17 @@ jobs:
       - name: Push docker image
         run: docker image push ascoz/polystore-catalog:latest
 
+      # Build and push cart docker image
+      - name: Build cart docker image
+        run: docker build cart -t ascoz/polystore-cart:latest
+      - name: Docker hub login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Push docker image
+        run: docker image push ascoz/polystore-cart:latest
+
       # Build and push gateway docker image
       - name: Build gateway docker image
         run: docker build gateway -t ascoz/polystore-gateway:latest
