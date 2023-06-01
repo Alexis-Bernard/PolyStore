@@ -65,6 +65,20 @@ services:
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
 
+  polystore-catalog:
+    image: ascoz/polystore-catalog:latest
+    depends_on:
+      - mongo
+      - rabbitmq
+    environment:
+      - PORT=8080
+      - EUREKA_ENABLED=false
+      - MONGODB_HOST=mongo
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=admin
+      - MONGODB_USERNAME=root
+      - MONGODB_PASSWORD=root
+
   polystore-gateway:
     image: ascoz/polystore-gateway:latest
     ports:
