@@ -82,12 +82,12 @@ services:
   polystore-cart:
     image: ascoz/polystore-cart:latest
     depends_on:
-      - mongo
+      - redis
       - rabbitmq
     environment:
       - PORT=8080
       - EUREKA_ENABLED=false
-      - REDIS_HOST=mongo
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
 
   polystore-gateway:
@@ -96,3 +96,7 @@ services:
       - "8080:8080"
     environment:
       - EUREKA_ENABLED=false
+      - INVENTORY_URI=http://polystore-inventory:8080
+      - CATALOG_URI=http://polystore-catalog:8080
+      - ORDER_URI=http://polystore-order:8080
+      - CART_URI=http://polystore-cart:8080

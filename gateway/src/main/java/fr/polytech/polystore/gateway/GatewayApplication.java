@@ -35,7 +35,8 @@ public class GatewayApplication {
     }
 
     @Bean
-    @LoadBalanced
+    // @LoadBalanced is desactivated because of an error if eureka is not enabled
+    // @LoadBalanced
     WebClient.Builder webClientBuilder() {
         return WebClient.builder();
     }
