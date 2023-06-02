@@ -1,5 +1,6 @@
 package fr.polytech.polystore.gateway;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -14,23 +15,47 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class GatewayApplication {
 
     @Bean
+    public String inventoryServiceUrl(@Value("${services.inventory-service.url}") String inventoryServiceUrl) {
+        return inventoryServiceUrl;
+    }
+
+    @Bean
+    public String catalogServiceUrl(@Value("${services.catalog-service.url}") String catalogServiceUrl) {
+        return catalogServiceUrl;
+    }
+
+    @Bean
+    public String cartServiceUrl(@Value("${services.cart-service.url}") String cartServiceUrl) {
+        return cartServiceUrl;
+    }
+
+    @Bean
+    public String orderServiceUrl(@Value("${services.order-service.url}") String orderServiceUrl) {
+        return orderServiceUrl;
+    }
+
+    @Bean
     @LoadBalanced
     WebClient.Builder webClientBuilder() {
         return WebClient.builder();
     }
 
     @Bean
-    public RouteLocator myRoutes(RouteLocatorBuilder builder) {
+    public RouteLocator myRoutes(
+            RouteLocatorBuilder builder,
+            String catalogServiceUrl,
+            String cartServiceUrl,
+            String orderServiceUrl) {
         return builder.routes()
                 .route(p -> p
                         .path("/products/**")
-                        .uri("lb://catalog-service"))
+                        .uri(catalogServiceUrl))
                 .route(p -> p
                         .path("/cart-items/**")
-                        .uri("lb://cart-service"))
+                        .uri(cartServiceUrl))
                 .route(p -> p
                         .path("/orders/**")
-                        .uri("lb://order-service"))
+                        .uri(orderServiceUrl))
                 .build();
     }
 

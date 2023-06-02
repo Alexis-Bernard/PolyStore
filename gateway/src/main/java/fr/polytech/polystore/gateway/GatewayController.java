@@ -16,22 +16,30 @@ public class GatewayController {
 
     private WebClient webClient;
     private final ReactiveCircuitBreaker readingListCircuitBreaker;
+    private final String inventoryServiceUrl;
+    private final String catalogServiceUrl;
 
-    public GatewayController(WebClient.Builder webClientBuilder, ReactiveCircuitBreakerFactory circuitBreakerFactory) {
-        this.webClient = webClientBuilder.baseUrl("lb:").build();
+    public GatewayController(
+            WebClient.Builder webClientBuilder,
+            ReactiveCircuitBreakerFactory circuitBreakerFactory,
+            String inventoryServiceUrl,
+            String catalogServiceUrl) {
+        this.webClient = webClientBuilder.build();
         this.readingListCircuitBreaker = circuitBreakerFactory.create("inventory-service");
+        this.inventoryServiceUrl = inventoryServiceUrl;
+        this.catalogServiceUrl = catalogServiceUrl;
     }
 
     @GetMapping("/products")
     public Flux<GatewayProduct> getProduct() {
-        Flux<CatalogProduct> catalogProducts = webClient.get().uri("//catalog-service/products")
+        Flux<CatalogProduct> catalogProducts = webClient.get().uri(catalogServiceUrl + "/products")
                 .retrieve()
                 .onStatus(status -> status.is5xxServerError(),
                         error -> Mono.error(new RuntimeException("Http 5xx status from catalog service")))
                 .bodyToFlux(CatalogProduct.class);
 
         Flux<InventoryProduct> inventoryProducts = readingListCircuitBreaker.run(
-                webClient.get().uri("//inventory-service/inventory").retrieve().bodyToFlux(InventoryProduct.class),
+                webClient.get().uri(inventoryServiceUrl + "/inventory").retrieve().bodyToFlux(InventoryProduct.class),
                 throwable -> {
                     System.out.println("Http 5xx status from inventory service");
                     return Flux.empty();
@@ -52,7 +60,7 @@ public class GatewayController {
 
     @PostMapping("/products")
     public Mono<CatalogProduct> createProduct(@RequestBody CatalogProduct product) {
-        return webClient.post().uri("//catalog-service/products").body(Mono.just(product), CatalogProduct.class)
+        return webClient.post().uri(catalogServiceUrl + "/products").body(Mono.just(product), CatalogProduct.class)
                 .retrieve().bodyToMono(CatalogProduct.class);
     }
 

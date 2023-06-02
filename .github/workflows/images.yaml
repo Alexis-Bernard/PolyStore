@@ -14,8 +14,8 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      # Build and push docker image
-      - name: Build docker image
+      # Build and push inventory docker image
+      - name: Build inventory docker image
         run: docker build inventory -t ascoz/polystore-inventory:latest
       - name: Docker hub login
         uses: docker/login-action@v2
@@ -25,8 +25,8 @@ jobs:
       - name: Push docker image
         run: docker image push ascoz/polystore-inventory:latest
 
-      # Build and push docker image
-      - name: Build docker image
+      # Build and push order docker image
+      - name: Build order docker image
         run: docker build order -t ascoz/polystore-order:latest
       - name: Docker hub login
         uses: docker/login-action@v2
@@ -35,3 +35,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Push docker image
         run: docker image push ascoz/polystore-order:latest
+
+      # Build and push gateway docker image
+      - name: Build gateway docker image
+        run: docker build gateway -t ascoz/polystore-gateway:latest
+      - name: Docker hub login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Push docker image
+        run: docker image push ascoz/polystore-gateway:latest

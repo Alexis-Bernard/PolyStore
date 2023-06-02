@@ -43,8 +43,6 @@ services:
 
   polystore-inventory:
     image: ascoz/polystore-inventory:latest
-    ports:
-      - "8080:8080"
     depends_on:
       - postgres
       - rabbitmq
@@ -57,8 +55,6 @@ services:
 
   polystore-order:
     image: ascoz/polystore-order:latest
-    ports:
-      - "8080:8080"
     depends_on:
       - postgres
       - rabbitmq
@@ -68,3 +64,10 @@ services:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/postgres
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
+
+  polystore-gateway:
+    image: ascoz/polystore-gateway:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_ENABLED=false
