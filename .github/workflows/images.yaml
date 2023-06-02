@@ -7,64 +7,24 @@ on:
     branches: [master]
 
 jobs:
-  build_and_push_discovery_sever:
+  build_and_push_images:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [inventory, order, catalog, cart, gateway]
+
     steps:
       # Checkout repository
       - name: Clone repository
         uses: actions/checkout@v2
 
-      # Build and push inventory docker image
-      - name: Build inventory docker image
-        run: docker build inventory -t ascoz/polystore-inventory:latest
+      # Build and push docker image
+      - name: Build ${{matrix.service}} docker image
+        run: docker build ${{matrix.service}} -t ascoz/polystore-${{matrix.service}}:latest
       - name: Docker hub login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Push docker image
-        run: docker image push ascoz/polystore-inventory:latest
-
-      # Build and push order docker image
-      - name: Build order docker image
-        run: docker build order -t ascoz/polystore-order:latest
-      - name: Docker hub login
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Push docker image
-        run: docker image push ascoz/polystore-order:latest
-
-      # Build and push catalog docker image
-      - name: Build catalog docker image
-        run: docker build catalog -t ascoz/polystore-catalog:latest
-      - name: Docker hub login
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Push docker image
-        run: docker image push ascoz/polystore-catalog:latest
-
-      # Build and push cart docker image
-      - name: Build cart docker image
-        run: docker build cart -t ascoz/polystore-cart:latest
-      - name: Docker hub login
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Push docker image
-        run: docker image push ascoz/polystore-cart:latest
-
-      # Build and push gateway docker image
-      - name: Build gateway docker image
-        run: docker build gateway -t ascoz/polystore-gateway:latest
-      - name: Docker hub login
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Push docker image
-        run: docker image push ascoz/polystore-gateway:latest
+        run: docker image push ascoz/polystore-${{matrix.service}}:latest
